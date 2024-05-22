@@ -1,0 +1,14 @@
+"","type","scenario","tempC","C_breakdownTQ_gC","C_StStock_gC_total","Max_date_TbrK"
+"1","Acer","ShalGW",213,331,333,118
+"2","Acer","DeepGW",192,331,333,139
+"3","Acer","NoGW",195,331,333,136
+"4","Acer","NoGW_Warm",195,331,333,136
+"5","Acer","DeepGW_Warm",192,331,333,139
+"6","Acer","ShalGW_Warm",213,330,332,117
+"7","Rhodo","ShalGW",213,178,365,-35
+"8","Rhodo","DeepGW",192,150,360,-42
+"9","Rhodo","NoGW",195,169,1,-26
+"10","Rhodo","NoGW_Warm",195,151,365,-44
+"11","Rhodo","DeepGW_Warm",192,150,360,-42
+"12","Rhodo","ShalGW_Warm",213,172,360,-41
+"13","Mixed","Base",206,331,334,125

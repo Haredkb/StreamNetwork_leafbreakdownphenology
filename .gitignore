@@ -47,3 +47,9 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Data Output folder
+output_v4/
+
+# Previous Model (2023) Runs
+data/final_lmer_model_network/SI_analyses_10.0_6Mar23

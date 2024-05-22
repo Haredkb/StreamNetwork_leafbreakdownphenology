@@ -33,13 +33,13 @@ mod_k_RF <- readRDS("data/final_lmer_model_network/rhodo_shredder_model.RDS")
 #Climate scenarios derived from Hare et al. 2021; 0.04 C/year (which is the mean rate of increase for both shall and atm), verus for 0.01 C/year; therefore for 50 years 2 C for atmospheric and shallow, versus 0.5 for deep groundwater 
 temp_sin <- readRDS("data/temp_sin.RDS")
 scen_T <- list(
-               base = temp_sin #Observed Coweeta Stream Temperature
-               # deepGW = mutate(temp_sin, amp = 4, phase = 200, ymean = 12), #deep GW
-               # shalGW = mutate(temp_sin, amp = 5.5, phase = 220, ymean = 12),#shallow GW
-               # low_GW = mutate(temp_sin, amp = 9, phase = 200, ymean = 13),#minimal GW influence
-               # low_GW_2 = mutate(temp_sin, amp = 9, phase = 200, ymean = 15),#, air-coupled warming scenario
-               # deepGW_05 = mutate(temp_sin, amp = 4, phase = 200, ymean = 12.5), #deep GW warming scenario
-               # shalGW_2 = mutate(temp_sin, amp = 5.5, phase = 220, ymean = 14)#shallow GW warming scenario
+              #base = temp_sin, #Observed Coweeta Stream Temperature
+                #deepGW = mutate(temp_sin, amp = 4, phase = 200, ymean = 12), #deep GW
+                #shalGW = mutate(temp_sin, amp = 5.5, phase = 220, ymean = 12)#shallow GW
+                # low_GW = mutate(temp_sin, amp = 9, phase = 200, ymean = 13),#minimal GW influence
+                # low_GW_2 = mutate(temp_sin, amp = 9, phase = 200, ymean = 15),#, air-coupled warming scenario
+                # deepGW_05 = mutate(temp_sin, amp = 4, phase = 200, ymean = 12.5), #deep GW warming scenario
+                 shalGW_2 = mutate(temp_sin, amp = 5.5, phase = 220, ymean = 14)#shallow GW warming scenario
                )
 scen_temp <- names(scen_T) #list the scen
 intial_objects <- ls() #create list of objects needed preRun, to clean up everything but whatis listed above on iterative scenario runs 
@@ -47,7 +47,7 @@ intial_objects <- ls() #create list of objects needed preRun, to clean up everyt
 
 for(scen in scen_temp){
   rm(list=setdiff(ls(), c(intial_objects, "scen", "intial_objects"))) #remove everything in runs before 
-  
+  gc()
   
     modelrun_start <- now()# start timer
     #set up output dataframe
@@ -119,20 +119,24 @@ for(scen in scen_temp){
     
     ##qual_In changed to 100% for 
       qual_IN <- readRDS("data/POM_In_speciesperc.RDS") %>%
-          dplyr::select(1:2) #%>%
-          #mutate(percent_low.fit = 1)#0 for acer, 1 for rhodo, comment out for mixed
+          dplyr::select(1:2) %>%
+          mutate(percent_low.fit = 1)#0 for acer scenarios, 1 for rhodo, comment out for mixed
         
         ClocalLit_AFDMg <- left_join(ClocalLit_AFDMg, qual_IN)%>%
           mutate(Cdirect_gm2hr_slow = Cdirect_gm2hr_ * percent_low.fit, #based on figure 2 Webster 2001
                  Cdirect_gm2hr_fast = Cdirect_gm2hr_ * (1-percent_low.fit),
-                 Clateral_gmhr_slow = Clateral_gmhr_ * 0.5,#1, #0.5 based on annual blow in from Webster 2001 *1 or *0 for acer alone or rhodo alone 05 for mixed
-                 Clateral_gmhr_fast = Clateral_gmhr_ * 0.5 #0.5 based on annual blow in from Webster 2001 *1 or *0 for acer alone or rhodo alone 05 for mixed
+                 Clateral_gmhr_slow = Clateral_gmhr_ * 1,#0.5 based on annual blow in from Webster 2001 *1 for rhodo only scenarios, or *0 acer alone, 05 for mixed
+                 Clateral_gmhr_fast = Clateral_gmhr_ * 0 #0.5 based on annual blow in from Webster 2001 *1 or *0 for acer alone or rhodo alone 05 for mixed
                  )
 #######################
         #set up run for fragmentation model mean, model UCI, and model LCI
-frag_model <- c("UCI", "LCI", "M") 
+frag_model <- c("LCI") # , "UCI", "LCI", "M"
+        frag_objects <- ls() #create list of objects needed preRun, to clean up everything but whatis listed above on iterative scenario runs 
         
         for(frag_model_i in frag_model){
+          
+          # rm(list=setdiff(ls(), c(frag_objects, "frag_model_i"))) #remove everything in runs before 
+          # gc()
     ####################################
     #SETTING UP INITIAL DATE FOR THE RUN,
               j = 1 #previously had been running multiple start dates, but now single run 
@@ -435,13 +439,15 @@ frag_model <- c("UCI", "LCI", "M")
               net_lst <- net_lst[- c(seq(1:4320))]  #remove up until June 2019 (2018 not saved at all)
               ts_all <-  do.call("rbind", net_lst)
                 
-              write_rds(ts_all, paste0("output_v3/data/network_mix_", scen, "_ts_all_",frag_model_i, "_bf_nonserialC.RDS"))
-              
+              #write_rds(ts_all, paste0("output_v4/data/network_mix_", scen, "_ts_all_",frag_model_i, "_bf_nonserialC.RDS"))
+              #write_rds(ts_all, paste0("output_v4/data/network_rhodo_", scen, "_ts_all_",frag_model_i, "_bf_nonserialC.RDS"))
+              write_rds(ts_all, paste0("output_v4/data/network_rhodo_", scen, "_ts_all_",frag_model_i, "_bf_nonserialC.RDS"))
               #summarize breakdown and gw_DOC
               ### Sum hourly timesteps to the day
               ts_day <- daily_clean_summarise(ts_all) 
               
-              write_rds(ts_day, paste0("output_v3/data/network_mix_", scen, "_ts_day_", frag_model_i, "_bf_nonserialC.RDS"))
+              #write_rds(ts_day, paste0("output_v4/data/network_mix_", scen, "_ts_day_", frag_model_i, "_bf_nonserialC.RDS"))
+              write_rds(ts_day, paste0("output_v4/data/network_rhodo_", scen, "_ts_day_", frag_model_i, "_bf_nonserialC.RDS"))
               ##Note the "lengthup_m" is from the original GIS calculations, so is determined seperately from this code. 
               ##Therefore, the SLout and lengthup_m should be ~ the same. 
               # #

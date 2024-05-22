@@ -1,16 +1,16 @@
 ## Functions calculate uncertainity of breakdown rate
 #########################################################
 
-lit_breakdown_pred_BM <-  function(model, input_df){
+lit_breakdown_pred_BM <-  function(model, df){
   require(merTools)
           #uncertainity in the temperature parameter
           #pred_AcSh <- exp(predictInterval(model, newdata = input_df, level = 0.95, which = c("fixed"), include.resid.var=0, ignore.fixed.terms = c("mean_flow_st")))
   
-  pred_k <- exp(predict(model, newdata=input_df, re.form = ~0))
+  pred_k <- exp(predict(model, newdata=df, re.form = ~0))
   
   b <- bootMer(model, nsim=500, 
-               FUN=function(x)predict(x, newdata=input_df, re.form = ~0))
-  
+               FUN=function(x)predict(x, newdata=df, re.form = ~0))
+
   predCL <- exp(t(apply(b$t, MARGIN = 2, FUN = quantile, probs = c(0.025, 0.975))))
   
   return(cbind(pred_k, predCL))
@@ -46,7 +46,7 @@ fragmentation_k_calc <- function(input_df, scaled_TQ_df, mod_k_AF, mod_k_RF){
   #Rhodo Data
   input_df_RF <- input_df %>%
     mutate( 
-            one.k.T.cent = (1/((tempC + 273.15)* Boltz)) - dplyr::filter(scaled_TQ_df, leaf == "R" & type =="Sh")$avgT,
+            one.k.T.cent= (1/((tempC + 273.15)* Boltz)) - dplyr::filter(scaled_TQ_df, leaf == "R" & type =="Sh")$avgT,
             mean_flow_st =  if_else(Qout_ls > 1500, scale(1500, center = dplyr::filter(scaled_TQ_df, leaf == "R" & type =="Sh")$avgQ, 
                                                        scale = dplyr::filter(scaled_TQ_df, leaf == "R" & type =="Sh")$stdevQ), 
                                     scale(Qout_ls, center = dplyr::filter(scaled_TQ_df, leaf == "R" & type =="Sh")$avgQ, 
